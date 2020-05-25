@@ -1,0 +1,73 @@
+const userDal = require("../../dataaccess/user/index")
+const User = require('../../models/user')
+const queryParser = require('../../utils/queryparser')
+const md5 = require('md5')
+const sendMail = require("../../utils/sendemail")
+const crypto = require('crypto')
+let auhtService = {
+    async checkemail(request) {
+        const {email} = request.body
+        const data = await userDal.show({email: email})
+        return data
+    },
+    async register(request) {
+        const {name, surname, email, password} = request.body
+        const user = new User({
+            image: process.env.DEFAULT_IMAGE,
+            name: name,
+            surname: surname,
+            fullname: name + " " + surname,
+            email: email,
+            password: md5(password),
+            diaries: []
+        });
+        /* html: '<h1>Welcome</h1><p>That was easy!</p>'*/
+        /*        const mail = await sendMail(email, "Kayıt İçin Teşekür", "Herkesin Bir Günlüğe İhtiyacı Vardır :)")*/
+        const data = await userDal.create(user)
+        return data
+    },
+
+    async login(request, response) {
+
+        const {email, password} = request.body;
+        const user = await userDal.show({email: email, password: md5(password)}, "email fullname")
+        if (user !== null) {
+            return user
+        } else {
+            return []
+        }
+    },
+    async checkpasswordtoken(request){
+
+    },
+    async passwordreset(request) {
+        const {email} = request.body;
+        let token
+        await crypto.randomBytes(32, async (err, buffer) => {
+            if (err) {
+                console.error(err)
+            }
+            token = buffer.toString("hex")
+            return token;
+        })
+        const user = await userDal.show({email: email}, "email")
+        if (user === null) {
+            return []
+        }
+        const updatedUserToken = await userDal.update({email: email}, {
+            resetToken: token,
+            resetTokenExpiration: Date.now() + 3600000
+        })
+        if (updatedUserToken.n && updatedUserToken.n > 0) {
+            sendMail(email, "Parola  Sıfırlama", "", `
+                <p>Parola Sıfırlama İsteğiniz </p>
+                <p>Buraya <a href="http://localhost:3001/resetpassword/${token}"> Tıklayarak </a>  Parolanızı Sıfırlayın</p>
+                `)
+        }
+        return updatedUserToken
+    }
+
+
+}
+
+module.exports = auhtService

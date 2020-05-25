@@ -1,0 +1,32 @@
+const User = require('../../models/user')
+const Dair = require('../../models/dair')
+const Videos = require('../../models/video')
+let UserDataAccess = {
+    async delete(where) {
+        const deleted = await User.deleteMany(where)
+        return deleted
+    },
+    async update(where, updatedUser) {
+        const user = await User.updateMany(where, updatedUser)
+        return user
+        /*TODO*/
+        /*      const updated = await Tech.update(techModel, {where: where})
+              /!*return updated*!/
+              const tech = await this.all(where)
+              return tech[0]*/
+    },
+    async show(where, fields, populate) {
+        const user = await User.findOne(where).select(fields).populate(populate ? populate : null)
+        return user
+    },
+    async create(sourceuser) {
+        const user = await sourceuser.save();
+        return user;
+    },
+    async all(where, fields, populate) {
+        const users = await User.find(where).select(fields).populate(populate ? populate : null)
+        return users
+    }
+}
+
+module.exports = UserDataAccess;

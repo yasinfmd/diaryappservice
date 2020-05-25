@@ -21,14 +21,12 @@ let auhtService = {
             password: md5(password),
             diaries: []
         });
-        /* html: '<h1>Welcome</h1><p>That was easy!</p>'*/
         /*        const mail = await sendMail(email, "Kayıt İçin Teşekür", "Herkesin Bir Günlüğe İhtiyacı Vardır :)")*/
         const data = await userDal.create(user)
         return data
     },
 
     async login(request, response) {
-
         const {email, password} = request.body;
         const user = await userDal.show({email: email, password: md5(password)}, "email fullname")
         if (user !== null) {
@@ -37,8 +35,11 @@ let auhtService = {
             return []
         }
     },
-    async checkpasswordtoken(request){
-
+    async checkpasswordtoken(request) {
+        const {token} = request.params
+        const user = await userDal.show({resetToken: token, resetTokenExpiration: {$gt: Date.now()}}, "email")
+        if (user === null) return []
+        return user;
     },
     async passwordreset(request) {
         const {email} = request.body;
@@ -65,9 +66,16 @@ let auhtService = {
                 `)
         }
         return updatedUserToken
+    },
+
+    async updatepassword(request) {
+        const {userid, password} = request.body
+        const updatedPassword = await userDal.update({_id: userid}, {password: md5(password)})
+        if (updatedPassword.n && updatedPassword.n > 0) {
+            return updatedPassword
+        }
+        return []
     }
-
-
 }
 
 module.exports = auhtService

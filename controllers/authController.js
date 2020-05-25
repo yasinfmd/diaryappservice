@@ -27,6 +27,20 @@ exports.login = async (req, res, next) => {
     }
 }
 
+exports.passwordtokenvalidate = async (req, res, next) => {
+    try {
+        const response = await AuthService.checkpasswordtoken(req)
+        if (response.length < 1) {
+            res.send(404).json();
+        } else {
+            res.status(200).json(response)
+        }
+    } catch (error) {
+        res.status(500).json({error: error})
+
+    }
+}
+
 exports.forgotpassword = async (req, res, next) => {
     try {
         const response = await AuthService.passwordreset(req)
@@ -39,6 +53,20 @@ exports.forgotpassword = async (req, res, next) => {
         }
     } catch (error) {
         res.status(500).json({error: error})
+    }
+}
 
+exports.updatepassword = async (req, res, next) => {
+    try {
+        const response = await AuthService.updatepassword(req)
+        if (response.length < 1) {
+            res.status(404).json()
+        } else if (response.n && response.n > 0) {
+            res.status(200).json({msg: "Success"})
+        } else {
+            res.status(500)
+        }
+    } catch (error) {
+        res.status(500).json({error: error})
     }
 }

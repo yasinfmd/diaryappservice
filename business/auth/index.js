@@ -3,12 +3,26 @@ const User = require('../../models/user')
 const queryParser = require('../../utils/queryparser')
 const md5 = require('md5')
 const sendMail = require("../../utils/sendemail")
+const {check} = require('express-validator');
+
 const crypto = require('crypto')
 let auhtService = {
     async checkemail(request) {
         const {email} = request.body
         const data = await userDal.show({email: email})
         return data
+    },
+    validation(type) {
+        switch (type) {
+            case "register":
+                return [check("name").isString(), check('email').isString(), check('surname').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
+            case "login":
+                return [check('email').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8})]
+            case "forgotpassword":
+                return [check('email').isString(), check('email').isEmail()]
+            case "newpassword":
+                return [check('password').isString(), check('password').isLength({min: 8}), check('userid').isString()]
+        }
     },
     async register(request) {
         const {name, surname, email, password} = request.body

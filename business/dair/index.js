@@ -46,7 +46,7 @@ let dairService = {
             if (urlparse != undefined) {
                 where = queryParser.parseQuery(urlparse)
             }
-            const data = await dairDal.show(where, fields ? fields : "", populate)
+            const data = await dairDal.all(where, fields ? fields : "", populate)
             return data
         } catch (e) {
             console.log(e)

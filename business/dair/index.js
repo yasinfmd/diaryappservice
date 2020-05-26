@@ -1,7 +1,8 @@
 const dairDal = require("../../dataaccess/dair/index")
 const queryParser = require('../../utils/queryparser')
 const Dair = require('../../models/dair')
-const moment = require('moment')
+const {check, query} = require('express-validator');
+
 let dairService = {
     async show(request) {
         try {
@@ -13,15 +14,26 @@ let dairService = {
             console.log(e)
         }
     },
-    async checktoday(request) {
+    async checktoday() {
         const data = await dairDal.show({dairdateString: new Date().toLocaleDateString()})
         return data
+    },
+    validation(type) {
+        switch (type) {
+            case "create":
+                return [
+                    check("userid").isString(), check('title').isString(),
+                    check('content').isString(),
+                    check('title').isLength({min: 3}), check('content').isLength({min: 3})]
+            case "show":
+                return [query('dairId').isString()]
+
+        }
     },
     async create(request) {
         /*dosya işlemleri*/
         const {userid, title, content} = request.body
         const todayExist = await this.checktoday(request)
-        console.log("bugun var", todayExist)
         if (todayExist === null) {
             const dair = new Dair({
                 userId: userid,

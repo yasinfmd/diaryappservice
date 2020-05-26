@@ -1,5 +1,7 @@
 const userDal = require("../../dataaccess/user/index")
 const queryParser = require('../../utils/queryparser')
+const {check, query} = require('express-validator');
+
 let userService = {
     async show(request) {
         try {
@@ -9,6 +11,17 @@ let userService = {
             return data
         } catch (e) {
             console.log(e)
+        }
+    },
+    validation(type) {
+        switch (type) {
+            case "register":
+                return [check("name").isString(), check('email').isString(), check('surname').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
+            case "show":
+                return [query('userId').isString()]
+            case "getdair":
+                return [query('userId').isString()]
+
         }
     },
     async getdair(request) {

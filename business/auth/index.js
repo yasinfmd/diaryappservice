@@ -3,8 +3,8 @@ const User = require('../../models/user')
 const queryParser = require('../../utils/queryparser')
 const md5 = require('md5')
 const sendMail = require("../../utils/sendemail")
-const {check} = require('express-validator');
-
+const {check, query} = require('express-validator');
+const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 let auhtService = {
     async checkemail(request) {
@@ -22,6 +22,8 @@ let auhtService = {
                 return [check('email').isString(), check('email').isEmail()]
             case "newpassword":
                 return [check('password').isString(), check('password').isLength({min: 8}), check('userid').isString()]
+            case "checktoken":
+                return [query("token").isString()]
         }
     },
     async register(request) {
@@ -44,7 +46,20 @@ let auhtService = {
         const {email, password} = request.body;
         const user = await userDal.show({email: email, password: md5(password)}, "email fullname")
         if (user !== null) {
-            return user
+            const token = jwt.sign({
+                    userid: user._id,
+                    email: user.email,
+                },
+                process.env.SECRET,
+                {
+                    issuer: "localhost",
+                    expiresIn: "2h"
+                }
+            )
+            return {
+                user,
+                token
+            }
         } else {
             return []
         }

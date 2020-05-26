@@ -1,5 +1,5 @@
 {
-  "name": "Diary App",
+  "name": "Diary_App",
   "version": "1.0.0",
   "description": "Diary App",
   "main": "app.js",
@@ -16,6 +16,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "md5": "^2.2.1",
+    "moment": "^2.26.0",
     "mongoose": "^5.9.14",
     "node-rsa": "^1.0.8",
     "nodemailer": "^6.4.6",

@@ -1,14 +1,14 @@
 const User = require('../../models/user')
 const Dair = require('../../models/dair')
 const Videos = require('../../models/video')
-let UserDataAccess = {
+let DairDataAccess = {
     async delete(where) {
-        const deleted = await User.deleteMany(where)
+        const deleted = await Dair.deleteMany(where)
         return deleted
     },
     async update(where, updatedUser) {
-        const user = await User.updateMany(where, updatedUser)
-        return user
+        const dair = await Dair.updateMany(where, updatedUser)
+        return dair
         /*TODO*/
         /*      const updated = await Tech.update(techModel, {where: where})
               /!*return updated*!/
@@ -16,17 +16,17 @@ let UserDataAccess = {
               return tech[0]*/
     },
     async show(where, fields, populate) {
-        const user = await User.findOne(where).select(fields).populate(populate ? populate : null)
-        return user
+        const dair = await Dair.findOne(where).select(fields).populate(populate ? populate : null)
+        return dair
     },
-    async create(userModel) {
-        const user = await userModel.save();
-        return user;
+    async create(dairModel) {
+        const dair = await dairModel.save();
+        return dair;
     },
     async all(where, fields, populate) {
-        const users = await User.find(where).select(fields).populate(populate ? populate : null)
-        return users
+        const dairs = await Dair.find(where).select(fields).populate(populate ? populate : null)
+        return dairs
     }
 }
 
-module.exports = UserDataAccess;
+module.exports = DairDataAccess;

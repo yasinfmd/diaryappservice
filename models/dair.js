@@ -5,6 +5,10 @@ const Schema = mongoose.Schema;
 const dairSchema = new Schema({
     dairdate: {
         type: Date,
+        required: true,
+    },
+    dairdateString: {
+        type: String,
         required: true
     },
     title: {

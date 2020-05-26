@@ -18,6 +18,7 @@ const Dair = require('./models/dair')*/
 app.use("/api/image", router.imageRouter)
 app.use("/api/auth", router.authRouter)
 app.use("/api/user", router.userRouter)
+app.use("/api/dair", router.dairRouter)
 app.use("/test", async (req, res, next) => {
 
     /*    const user = new User({

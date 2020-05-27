@@ -44,7 +44,7 @@ let auhtService = {
 
     async login(request, response) {
         const {email, password} = request.body;
-        const user = await userDal.show({email: email, password: md5(password)}, "email fullname")
+        const user = await userDal.show({email: email, password: md5(password)}, "email fullname image")
         if (user !== null) {
             const token = jwt.sign({
                     userid: user._id,

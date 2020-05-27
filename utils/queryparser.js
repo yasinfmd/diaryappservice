@@ -3,13 +3,35 @@ let QueryParser = {
         let parsedQuery = {}
         parser.forEach((item) => {
             if (item.Operation == "EQ") {
-                parsedQuery[item.PropertyName] = item.PropertyValue
+                if (parsedQuery[item.PropertyName] == undefined) {
+                    parsedQuery[item.PropertyName.trim()] = item.PropertyValue
+                } else {
+                    parsedQuery[item.PropertyName.trim()]['$eq'] = item.PropertyValue
+                }
             } else if (item.Operation == "CT") {
-                parsedQuery[item.PropertyName] = {$regex: '.*' + item.PropertyValue + '.*'}
+                if (parsedQuery[item.PropertyName] == undefined) {
+                    parsedQuery[item.PropertyName.trim()] = {$regex: '.*' + item.PropertyValue + '.*'}
+                } else {
+                    parsedQuery[item.PropertyName.trim()]['$regex'] = '.*' + item.PropertyValue + '.*'
+                }
             } else if (item.Operation == "GT") {
-                parsedQuery[item.PropertyName] = {$gt: item.PropertyValue}
+                if (parsedQuery[item.PropertyName] == undefined) {
+                    parsedQuery[item.PropertyName.trim()] = {$gte: item.PropertyValue}
+                } else {
+                    parsedQuery[item.PropertyName.trim()]['$gte'] = item.PropertyValue
+                }
+            } else if (item.Operation == "LT") {
+                if (parsedQuery[item.PropertyName] == undefined) {
+                    parsedQuery[item.PropertyName.trim()] = {$lte: item.PropertyValue}
+                } else {
+                    parsedQuery[item.PropertyName.trim()]['$lte'] = item.PropertyValue
+                }
             } else if (item.Operation == "IN") {
-                parsedQuery[item.PropertyName] = {$in: [item.PropertyValue]}
+                if (parsedQuery[item.PropertyName] == undefined) {
+                    parsedQuery[item.PropertyName.trim()] = {$in: [item.PropertyValue]}
+                } else {
+                    parsedQuery[item.PropertyName.trim()]['$in'] = [item.PropertyValue]
+                }
             }
         })
         return parsedQuery

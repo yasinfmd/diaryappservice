@@ -7,5 +7,6 @@ router.post("/create", userController.store);
 router.post("/:userId", [...userService.validation("show")], userController.show);
 router.post("/update", userController.update);
 router.post("/delete", userController.destroy);
-router.post("/:userId/dair", [...userService.validation("getdair")], userController.getdair)
+router.post("/:userId/dair", userController.getdair)
 module.exports = router;
+/* [...userService.validation("getdair")]*/

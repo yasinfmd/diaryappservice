@@ -2,7 +2,7 @@ const dairDal = require("../../dataaccess/dair/index")
 const queryParser = require('../../utils/queryparser')
 const Dair = require('../../models/dair')
 const {check, query} = require('express-validator');
-
+const userDal = require('../../dataaccess/user/index')
 let dairService = {
     async show(request) {
         try {
@@ -33,7 +33,7 @@ let dairService = {
     async create(request) {
         /*dosya işlemleri*/
         const {userid, title, content} = request.body
-        const todayExist = await this.checktoday(request)
+        const todayExist = await this.checktoday()
         if (todayExist === null) {
             const dair = new Dair({
                 userId: userid,
@@ -45,6 +45,13 @@ let dairService = {
                 videos: []
             });
             const data = await dairDal.create(dair)
+            /*    console.log("yeni data", data)*/
+            const user = await userDal.show({_id: userid})
+            /*   console.log("kullanıcım", user)*/
+            const updateddiar = [...user.diaries, data._id]
+
+            const userpushdiar = await userDal.update({_id: user._id}, {diaries: updateddiar})
+            /*        console.log("yeni",userpushdiar)*/
             return data
         } else {
             return []

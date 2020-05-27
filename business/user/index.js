@@ -1,6 +1,7 @@
 const userDal = require("../../dataaccess/user/index")
 const queryParser = require('../../utils/queryparser')
 const {check, query} = require('express-validator');
+const mongoose = require('mongoose')
 const Diar = require('../../models/dair')
 let userService = {
     async show(request) {
@@ -19,13 +20,40 @@ let userService = {
                 return [check("name").isString(), check('email').isString(), check('surname').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
             case "show":
                 return [query('userId').isString()]
+            case "groupdair":
+                return [check('userId').isString(), check('userId').isAlphanumeric()]
             /*            case "getdair":
                             return [query('userId').isString()]*/
 
         }
     },
-    async getdair(request) {
 
+    async getgroupdair(request) {
+        const {userId} = request.body
+        const data = await Diar.aggregate([
+            {"$unwind": {"path": "$userId"}},
+            {"$match": {userId: mongoose.Types.ObjectId(userId)}},
+            {
+                "$lookup": {
+                    "from": "user",
+                    "localField": "userId",
+                    "foreignField": "_id",
+                    "as": "userId"
+                }
+            },
+            {
+                "$group": {
+                    "_id": {
+                        month: {$month: "$dairdate"},
+                        year: {$year: "$dairdate"}
+                    },
+                    count: {$sum: 1}
+                },
+            },
+        ]);
+        return data
+    },
+    async getdair(request) {
         const {userId} = request.params
         const {fields, dairfields, urlparse} = request.body
         let where = {}

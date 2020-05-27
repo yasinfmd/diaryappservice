@@ -8,5 +8,6 @@ router.post("/:userId", [...userService.validation("show")], userController.show
 router.post("/update", userController.update);
 router.post("/delete", userController.destroy);
 router.post("/:userId/dair", userController.getdair)
+router.post("/:userId/dairgroup", [...userService.validation('groupdair')], userController.getdairgroup)
 module.exports = router;
 /* [...userService.validation("getdair")]*/

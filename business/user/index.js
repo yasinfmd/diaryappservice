@@ -15,15 +15,14 @@ let userService = {
         }
     },
     validation(type) {
+        console.log("tip",type)
         switch (type) {
             case "register":
                 return [check("name").isString(), check('email').isString(), check('surname').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
             case "show":
                 return [query('userId').isString()]
-            case "groupdair":
-                return [check('userId').isString(), check('userId').isAlphanumeric()]
-            /*            case "getdair":
-                            return [query('userId').isString()]*/
+            case "dairgroup":
+                return [check('userId').isString()]
 
         }
     },

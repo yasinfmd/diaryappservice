@@ -1,6 +1,6 @@
 const userDal = require("../../dataaccess/user/index")
 const queryParser = require('../../utils/queryparser')
-const {check, query} = require('express-validator');
+const {check, param} = require('express-validator');
 const mongoose = require('mongoose')
 const Diar = require('../../models/dair')
 let userService = {
@@ -15,12 +15,12 @@ let userService = {
         }
     },
     validation(type) {
-        console.log("tip",type)
+        console.log("tip", type)
         switch (type) {
             case "register":
                 return [check("name").isString(), check('email').isString(), check('surname').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
             case "show":
-                return [query('userId').isString()]
+                return [param('userId').isString()]
             case "dairgroup":
                 return [check('userId').isString()]
 
@@ -90,7 +90,7 @@ let userService = {
             if (urlparse != undefined) {
                 where = queryParser.parseQuery(urlparse)
             }
-            const data = await userDal.show(where, fields ? fields : "", populate)
+            const data = await userDal.all(where, fields ? fields : "", populate)
             return data
         } catch (e) {
             console.log(e)

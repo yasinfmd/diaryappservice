@@ -4,8 +4,7 @@ const userController = require('../../controllers/userController')
 const userService = require('../../business/user/index')
 const checkToken = require('../../middleware/auth')
 router.post("/dairgroup", checkToken, [...userService.validation("dairgroup")], userController.getdairgroup)
-router.post("/create", [checkToken], userController.store);
-router.post("/", [checkToken], userController.index);
+router.post("/",  userController.index);
 router.post("/:userId", [checkToken], [...userService.validation("show")], userController.show);
 router.post("/update", [checkToken], userController.update);
 router.post("/delete", [checkToken], userController.destroy);

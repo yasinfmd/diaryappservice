@@ -31,6 +31,16 @@ exports.update = async (req, res, next) => {
 }
 
 exports.destroy = async (req, res, next) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({errors: errors.array()});
+        }
+        const response = await userService.delete(req)
+        return res.status(200).json(response)
+    } catch (error) {
+        return res.status(500).json({error})
+    }
 }
 
 exports.getdairgroup = async (req, res, next) => {

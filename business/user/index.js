@@ -15,18 +15,24 @@ let userService = {
         }
     },
     validation(type) {
-        console.log("tip", type)
         switch (type) {
             case "register":
                 return [check("name").isString(), check('email').isString(), check('surname').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
             case "show":
                 return [param('userId').isString()]
+            case "delete":
+                return [param('urlparse').isArray()]
             case "dairgroup":
                 return [check('userId').isString()]
 
         }
     },
-
+    async delete(request) {
+        const {urlparse} = request.body
+        const where = queryParser.parseQuery(urlparse)
+        const deleted = userDal.delete(where)
+        return deleted
+    },
     async getgroupdair(request) {
         const {userId} = request.body
         const data = await Diar.aggregate([

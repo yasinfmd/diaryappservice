@@ -10,8 +10,8 @@ let dairService = {
             const {fields, populate} = request.body
             const data = await dairDal.show({_id: dairId}, fields ? fields : "", populate)
             return data
-        } catch (e) {
-            console.log(e)
+        } catch (error) {
+            throw new Error(error.message)
         }
     },
     async checktoday() {
@@ -32,29 +32,34 @@ let dairService = {
     },
     async create(request) {
         /*dosya işlemleri*/
-        const {userid, title, content} = request.body
-        const todayExist = await this.checktoday()
-        if (todayExist === null) {
-            const dair = new Dair({
-                userId: userid,
-                dairdate: new Date(),
-                dairdateString: new Date().toLocaleDateString(),
-                title: title,
-                content: content,
-                images: [],
-                videos: []
-            });
-            const data = await dairDal.create(dair)
-            /*    console.log("yeni data", data)*/
-            const user = await userDal.show({_id: userid})
-            /*   console.log("kullanıcım", user)*/
-            const updateddiar = [...user.diaries, data._id]
 
-            const userpushdiar = await userDal.update({_id: user._id}, {diaries: updateddiar})
-            /*        console.log("yeni",userpushdiar)*/
-            return data
-        } else {
-            return []
+        try {
+            const {userid, title, content} = request.body
+            const todayExist = await this.checktoday()
+            if (todayExist === null) {
+                const dair = new Dair({
+                    userId: userid,
+                    dairdate: new Date(),
+                    dairdateString: new Date().toLocaleDateString(),
+                    title: title,
+                    content: content,
+                    images: [],
+                    videos: []
+                });
+                const data = await dairDal.create(dair)
+                /*    console.log("yeni data", data)*/
+                const user = await userDal.show({_id: userid})
+                /*   console.log("kullanıcım", user)*/
+                const updateddiar = [...user.diaries, data._id]
+
+                const userpushdiar = await userDal.update({_id: user._id}, {diaries: updateddiar})
+                /*        console.log("yeni",userpushdiar)*/
+                return data
+            } else {
+                return []
+            }
+        } catch (error) {
+            throw new Error(error.message)
         }
 
     },
@@ -67,8 +72,8 @@ let dairService = {
             }
             const data = await dairDal.all(where, fields ? fields : "", populate)
             return data
-        } catch (e) {
-            console.log(e)
+        } catch (error) {
+            throw new Error(error.message)
         }
 
     }

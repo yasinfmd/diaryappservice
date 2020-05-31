@@ -10,7 +10,7 @@ exports.show = async (req, res, next) => {
         const response = await dairService.show(req)
         return res.status(200).json(response)
     } catch (error) {
-      return   res.status(500).json({error: error})
+        return res.status(500).json({error: error.message})
     }
 }
 
@@ -21,9 +21,10 @@ exports.index = async (req, res, next) => {
             return res.status(400).json({errors: errors.array()});
         }
         const response = await dairService.all(req)
-        return   res.status(200).json(response)
+        return res.status(200).json(response)
     } catch (error) {
-        return  res.status(500).json({error: error})
+        return res.status(500).json({error: error.message})
+
     }
 }
 
@@ -35,12 +36,13 @@ exports.store = async (req, res, next) => {
         }
         const response = await dairService.create(req)
         if (response.length < 1) {
-            return  res.status(204).json();
+            return res.status(204).json();
         } else {
             return res.status(200).json(response)
         }
     } catch (error) {
-        return res.status(500).json({error: error})
+        return res.status(500).json({error: error.message})
+
     }
 
 }

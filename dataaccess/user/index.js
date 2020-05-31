@@ -16,7 +16,6 @@ let UserDataAccess = {
               return tech[0]*/
     },
     async show(where, fields, populate) {
-        console.log("şart", where)
         const user = await User.findOne(where).select(fields).populate(populate ? populate : null)
         return user
     },

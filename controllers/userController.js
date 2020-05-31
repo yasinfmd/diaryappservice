@@ -6,7 +6,7 @@ exports.show = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({errors: errors.array()});
         }
-        const response = await userService.show(req)
+        const response = await userService.show(req, res)
         if (response == null) {
             return res.status(404).json([])
         } else {
@@ -19,7 +19,7 @@ exports.show = async (req, res, next) => {
 
 exports.index = async (req, res, next) => {
     try {
-        const response = await userService.all(req)
+        const response = await userService.all(req, res)
         return res.status(200).json(response)
     } catch (error) {
         return res.status(500).json({error})
@@ -33,7 +33,7 @@ exports.update = async (req, res, next) => {
 exports.updateImage = async (req, res, next) => {
     try {
         const response = await userService.updateImage(req, res)
-        res.status(200).json(response)
+        return res.status(200).json(response)
     } catch (error) {
         return res.status(500).json({error})
     }
@@ -45,7 +45,7 @@ exports.destroy = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({errors: errors.array()});
         }
-        const response = await userService.delete(req)
+        const response = await userService.delete(req, res)
         return res.status(200).json(response)
     } catch (error) {
         return res.status(500).json({error})
@@ -58,7 +58,7 @@ exports.getdairgroup = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({errors: errors.array()});
         }
-        const response = await userService.getgroupdair(req)
+        const response = await userService.getgroupdair(req, res)
         return res.status(200).json(response)
     } catch (error) {
         return res.status(500).json({error})
@@ -72,7 +72,7 @@ exports.getdair = async (req, res, next) => {
         if (!errors.isEmpty()) {
             return res.status(400).json({errors: errors.array()});
         }
-        const response = await userService.getdair(req)
+        const response = await userService.getdair(req, res)
         if (response._id == undefined) {
             return res.status(404).json([])
         } else {

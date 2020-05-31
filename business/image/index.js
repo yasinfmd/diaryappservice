@@ -1,9 +1,8 @@
 const imageDal = require("../../dataaccess/image/index")
 const queryParser = require('../../utils/queryparser')
+const fs = require('fs');
 let imageService = {
-    async uploadImage(request) {
 
-    },
     async update(request) {
         /*    const {urlparse, tech} = request.body;
             let where = queryParser.parseQuery(urlparse)
@@ -20,7 +19,17 @@ let imageService = {
     },
     validation(type) {
     },
+    async deleteFromStorage(path) {
+        if (fs.existsSync(path)) {
+            fs.unlink(path, (err) => {
+                if (err) return false;
+                return true
+            });
+        }
+        return true
+    },
     async delete(request) {
+
         const {urlparse} = request.body;
         let where = queryParser.parseQuery(urlparse)
         const data = await imageDal.delete(where)

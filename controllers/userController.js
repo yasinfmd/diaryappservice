@@ -13,7 +13,8 @@ exports.show = async (req, res, next) => {
             return res.status(200).json(response)
         }
     } catch (error) {
-        res.status(500).json({error})
+        return res.status(500).json({error:error.message})
+
     }
 }
 
@@ -22,7 +23,7 @@ exports.index = async (req, res, next) => {
         const response = await userService.all(req, res)
         return res.status(200).json(response)
     } catch (error) {
-        return res.status(500).json({error})
+        return res.status(500).json({error:error.message})
     }
 }
 
@@ -35,7 +36,7 @@ exports.updateImage = async (req, res, next) => {
         const response = await userService.updateImage(req, res)
         return res.status(200).json(response)
     } catch (error) {
-        return res.status(500).json({error})
+        return res.status(500).json({error:error.message})
     }
 }
 
@@ -48,7 +49,8 @@ exports.destroy = async (req, res, next) => {
         const response = await userService.delete(req, res)
         return res.status(200).json(response)
     } catch (error) {
-        return res.status(500).json({error})
+        return res.status(500).json({error:error.message})
+
     }
 }
 
@@ -61,7 +63,8 @@ exports.getdairgroup = async (req, res, next) => {
         const response = await userService.getgroupdair(req, res)
         return res.status(200).json(response)
     } catch (error) {
-        return res.status(500).json({error})
+        return res.status(500).json({error:error.message})
+
     }
 }
 
@@ -79,6 +82,7 @@ exports.getdair = async (req, res, next) => {
             return res.status(200).json(response)
         }
     } catch (error) {
-        return res.status(500).json({error})
+        return res.status(500).json({error:error.message})
+
     }
 }

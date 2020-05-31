@@ -11,8 +11,8 @@ let userService = {
             const {fields, populate} = request.body
             const data = await userDal.show({_id: userId}, fields ? fields : "", populate)
             return data
-        } catch (e) {
-            return response.status(500).json({error: e})
+        } catch (error) {
+            throw new Error(error.message)
         }
     },
     validation(type) {
@@ -59,8 +59,7 @@ let userService = {
                 return response.status(500).json({error: "Dosya Silinemedi"})
             }
         } catch (error) {
-            return response.status(500).json({error: error})
-
+            throw new Error(error.message)
         }
 
     },
@@ -100,7 +99,7 @@ let userService = {
             ]);
             return data
         } catch (error) {
-            return response.status(500).json({error: error})
+            throw new Error(error.message)
         }
     },
     async getdair(request, response) {
@@ -135,8 +134,7 @@ let userService = {
                 return {}
             }
         } catch (error) {
-            return response.status(500).json({error: error})
-
+            throw new Error(error.message)
         }
     },
     async all(request, response) {
@@ -148,8 +146,8 @@ let userService = {
             }
             const data = await userDal.all(where, fields ? fields : "", populate)
             return data
-        } catch (e) {
-            return response.status(500).json({error: error})
+        } catch (error) {
+            throw new Error(error.message)
         }
 
     }

@@ -17,14 +17,37 @@ let userService = {
     validation(type) {
         switch (type) {
             case "register":
-                return [check("name").isString(), check('email').isString(), check('surname').isString(), check('email').isEmail(), check('password').isString(), check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
+                return [check("name").isString(),
+                    check('name').notEmpty(),
+                    check('email').notEmpty(),
+                    check('email').isString(),
+                    check('surname').isString(),
+                    check('surname').isEmpty(),
+                    check('email').isEmail(), check('password').isString(),
+                    check('password').notEmpty(),
+                    check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
             case "show":
-                return [param('userId').isString()]
+                return [param('userId').isString(), param('userId').notEmpty()]
             case "delete":
-                return [param('urlparse').isArray()]
+                return [check('urlparse').isArray(), check('urlparse').notEmpty()]
+            /*     case "updateimg":
+                     return [check('userid').isString()]*/
             case "dairgroup":
-                return [check('userId').isString()]
-
+                return [check('userId').isString(), check('userId').notEmpty()]
+        }
+    },
+    async updateImage(request, response) {
+        const {userid} = request.body
+        const image = request.file;
+        const user = await userDal.show({_id: userid}, "")
+        if (user === null) {
+            return response.status(404).json([])
+        }
+        const updatedUserImage = await userDal.update({_id: userid}, {
+            image: "http://localhost:3000/" + image.destination + image.filename,
+        })
+        if (updatedUserImage.n && updatedUserImage.n > 0) {
+            return {image: "http://localhost:3000/" + image.destination + image.filename}
         }
     },
     async delete(request) {

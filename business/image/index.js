@@ -1,6 +1,9 @@
 const imageDal = require("../../dataaccess/image/index")
 const queryParser = require('../../utils/queryparser')
 let imageService = {
+    async uploadImage(request) {
+
+    },
     async update(request) {
         /*    const {urlparse, tech} = request.body;
             let where = queryParser.parseQuery(urlparse)

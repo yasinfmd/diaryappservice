@@ -30,6 +30,15 @@ exports.index = async (req, res, next) => {
 exports.update = async (req, res, next) => {
 }
 
+exports.updateImage = async (req, res, next) => {
+    try {
+        const response = await userService.updateImage(req, res)
+        res.status(200).json(response)
+    } catch (error) {
+        return res.status(500).json({error})
+    }
+}
+
 exports.destroy = async (req, res, next) => {
     try {
         const errors = validationResult(req);

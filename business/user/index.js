@@ -27,14 +27,41 @@ let userService = {
                     check('email').isEmail(), check('password').isString(),
                     check('password').notEmpty(),
                     check('password').isLength({min: 8}), check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
+
             case "show":
                 return [param('userId').isString(), param('userId').notEmpty()]
             case "delete":
                 return [check('urlparse').isArray(), check('urlparse').notEmpty()]
+            case "update":
+                return [check("name").isString(),
+                    check('urlparse').isArray(),
+                    check('name').notEmpty(),
+                    check('email').notEmpty(),
+                    check('email').isString(),
+                    check('surname').isString(),
+                    check('email').isEmail(),
+                    check('name').isLength({min: 3}), check('surname').isLength({min: 2})]
             /*     case "updateimg":
                      return [check('userid').isString()]*/
             case "dairgroup":
                 return [check('userId').isString(), check('userId').notEmpty()]
+        }
+    },
+    async update(request, response) {
+        try {
+            const {urlparse, name, surname, email} = request.body
+            const where = queryParser.parseQuery(urlparse)
+            const updatedUser = await userDal.update(where, {
+                name,
+                surname,
+                email,
+                fullname: name + " " + surname
+            })
+            if (updatedUser.n && updatedUser.n > 0) {
+                return {msg: "Success"}
+            }
+        } catch (error) {
+            throw new Error(error.message)
         }
     },
     async updateImage(request, response) {

@@ -6,6 +6,11 @@ const sendMail = require("../../utils/sendemail")
 const {check, query} = require('express-validator');
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
+const mailJob = require('../../jobs/sendmailJob')
+
+const registerTitle = "Kayıt İçin Teşekkürler"
+const registerText = "Herkesin Bir Günlüğe İhtiyacı Vardır "
+
 let auhtService = {
     async checkemail(request) {
         const {email} = request.body
@@ -37,7 +42,7 @@ let auhtService = {
             password: md5(password),
             diaries: []
         });
-        /*        const mail = await sendMail(email, "Kayıt İçin Teşekür", "Herkesin Bir Günlüğe İhtiyacı Vardır :)")*/
+        mailJob([{to: email,  text: registerText, title: registerTitle}])
         const data = await userDal.create(user)
         return data
     },
@@ -70,7 +75,7 @@ let auhtService = {
         if (user === null) return []
         return user;
     },
-    async passwordreset(request) {
+    passwordreset: async function (request) {
         const {email} = request.body;
         let token
         await crypto.randomBytes(32, async (err, buffer) => {
@@ -89,6 +94,8 @@ let auhtService = {
             resetTokenExpiration: Date.now() + 3600000
         })
         if (updatedUserToken.n && updatedUserToken.n > 0) {
+
+
             sendMail(email, "Parola  Sıfırlama", "", `
                 <p>Parola Sıfırlama İsteğiniz </p>
                 <p>Buraya <a href="http://localhost:3001/resetpassword/${token}"> Tıklayarak </a>  Parolanızı Sıfırlayın</p>

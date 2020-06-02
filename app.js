@@ -5,8 +5,7 @@ const path = require('path');
 const cors = require('cors')
 const router = require('./routes/index')
 const db = require('./database/mongoose')
-const mailJob=require('./jobs/index')
-/*const job=require('./jobs/index')*/
+/*const mailJob=require('./jobs/sendmailJob')*/
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
 app.use(cors())
@@ -17,8 +16,6 @@ app.use("/api/auth", router.authRouter)
 app.use("/api/user", router.userRouter)
 app.use("/api/dair", router.dairRouter)
 app.use("/test",(req,res,next)=>{
-/*    setTimeout(()=>{
-    },8000)*/
     const mockData=[
         {
             id:1,
@@ -33,10 +30,8 @@ app.use("/test",(req,res,next)=>{
     ]
     mailJob(mockData)
     for (let i=0;i<10000;i++){
-
     }
-    res.send("MRB")
-    console.log("mrb")
+    res.send("TEST")
 })
 app.use((error, req, res, next) => {
     console.log(error);

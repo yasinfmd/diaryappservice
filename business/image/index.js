@@ -1,5 +1,7 @@
 const imageDal = require("../../dataaccess/image/index")
 const queryParser = require('../../utils/queryparser')
+const multipleFileUpload = require('../../middleware/multipleimageuploads')
+
 const fs = require('fs');
 let imageService = {
 
@@ -19,6 +21,19 @@ let imageService = {
     },
     validation(type) {
     },
+    async uploadFileFromStorage(req, res) {
+        try {
+            multipleFileUpload(req, res, function (error) {
+                if (error) {
+                    throw new Error(error.message)
+                } else {
+                    return req.files
+                }
+            })
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    },
     async deleteFromStorage(path) {
         if (fs.existsSync(path)) {
             fs.unlink(path, (err) => {
@@ -35,13 +50,21 @@ let imageService = {
         const data = await imageDal.delete(where)
         return data
     },
-    async create(request) {
-        //resim ekledikten sonra listeler url vs
-        const data = await imageDal.create([{}])
-        /*bulkcreate*/
-        /*        const {name} = request.body
-                const data = await techDal.create({name})
-                return data*/
+    async create(request, response) {
+        try {
+            const files = await this.uploadFileFromStorage(request, response)
+            let imgList = []
+            files.forEach((image) => {
+                imgList.push({
+                    imageUri: process.env.HOST + image.destination + image.filename,
+                    fileName: image.filename
+                })
+            })
+            const data = await imageDal.create(imgList)
+            return data
+        } catch (error) {
+            throw new Error(error.message)
+        }
     },
 
     async all(request) {

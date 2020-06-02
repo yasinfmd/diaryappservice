@@ -1,5 +1,4 @@
 const imageService = require('../business/image/index')
-
 exports.show = async (req, res, next) => {
     try {
         const {imageId} = req.params;
@@ -17,16 +16,22 @@ exports.show = async (req, res, next) => {
 exports.index = async (req, res, next) => {
 
     try {
-
         let images = await imageService.all(req)
-        res.status(200).json(images);
+        return res.status(200).json(images);
     } catch (error) {
-        res.status(500).json({err: error})
+        return res.status(500).json({err: error})
     }
 }
 
 exports.store = async (req, res, next) => {
+    try {
+        const response = await imageService.create(req, res)
 
+
+        return res.status(200).json(response)
+    } catch (error) {
+        return res.status(500).json({error: error.message})
+    }
 }
 exports.update = async (req, res, next) => {
 }

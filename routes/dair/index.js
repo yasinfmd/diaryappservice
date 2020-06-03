@@ -7,5 +7,5 @@ router.post("/", checkToken, dairController.index);
 router.post("/create", checkToken, [...dairService.validation("create")], dairController.store);
 router.get("/:dairId", checkToken, [...dairService.validation("show")], dairController.show);
 router.post("/update", checkToken, dairController.update);
-router.post("/delete", checkToken, dairController.destroy);
+router.post("/delete", checkToken, [...dairService.validation('destroy')], dairController.destroy);
 module.exports = router;

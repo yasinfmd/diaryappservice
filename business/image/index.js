@@ -1,15 +1,10 @@
 const imageDal = require("../../dataaccess/image/index")
 const queryParser = require('../../utils/queryparser')
 const multipleFileUpload = require('../../middleware/multipleimageuploads')
-
+const dairDal = require("../../dataaccess/dair/index")
 const fs = require('fs');
 let imageService = {
-
     async update(request) {
-        /*    const {urlparse, tech} = request.body;
-            let where = queryParser.parseQuery(urlparse)
-            const data = await techDal.update(tech, where)
-            return data*/
     },
     async findById(imageId) {
         if (parseInt(imageId) > 0) {
@@ -21,15 +16,17 @@ let imageService = {
     },
     validation(type) {
     },
-    async uploadFileFromStorage(req, res) {
+    uploadFileFromStorage(req, res, bodyData) {
         try {
-            multipleFileUpload(req, res, function (error) {
-                if (error) {
-                    throw new Error(error.message)
-                } else {
-                    return req.files
-                }
-            })
+            return new Promise(((resolve, reject) => {
+                multipleFileUpload(req, res, function (error) {
+                    if (error) {
+                        reject(error)
+                    } else {
+                        resolve({file: req.files, body: bodyData ? req.body[bodyData] : null})
+                    }
+                })
+            }))
         } catch (error) {
             throw new Error(error.message)
         }
@@ -50,18 +47,33 @@ let imageService = {
         const data = await imageDal.delete(where)
         return data
     },
-    async create(request, response) {
+    async createDiarImage(request, response) {
         try {
-            const files = await this.uploadFileFromStorage(request, response)
+            console.log("2.olarak bende")
+            const result = await this.uploadFileFromStorage(request, response, "diarId")
+
             let imgList = []
-            files.forEach((image) => {
-                imgList.push({
-                    imageUri: process.env.HOST + image.destination + image.filename,
-                    fileName: image.filename
+            if (result.file) {
+
+                result.file.forEach((image) => {
+                    imgList.push({
+                        dairId: result.body,
+                        imageUri: process.env.HOST + image.destination + image.filename,
+                        fileName: image.filename
+                    })
                 })
-            })
-            const data = await imageDal.create(imgList)
-            return data
+                const data = await imageDal.create(imgList)
+                const dair = await dairDal.show({_id: result.body})
+                const dairImages = dair.images
+                data.forEach((imageItem) => {
+                    dairImages.push(imageItem._id)
+                })
+                const dairUpdateImages = await dairDal.update({_id:result.body}, {images: dairImages})
+                return data
+            } else {
+                return []
+            }
+
         } catch (error) {
             throw new Error(error.message)
         }

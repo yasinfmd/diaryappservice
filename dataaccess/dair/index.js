@@ -6,14 +6,9 @@ let DairDataAccess = {
         const deleted = await Dair.deleteMany(where)
         return deleted
     },
-    async update(where, updatedUser) {
-        const dair = await Dair.updateMany(where, updatedUser)
+    async update(where, updateDair) {
+        const dair = await Dair.updateMany(where, updateDair)
         return dair
-        /*TODO*/
-        /*      const updated = await Tech.update(techModel, {where: where})
-              /!*return updated*!/
-              const tech = await this.all(where)
-              return tech[0]*/
     },
     async show(where, fields, populate) {
         const dair = await Dair.findOne(where).select(fields).populate(populate ? populate : null)

@@ -25,9 +25,8 @@ exports.index = async (req, res, next) => {
 
 exports.store = async (req, res, next) => {
     try {
-        const response = await imageService.create(req, res)
-
-
+        console.log("ilk bende")
+        const response = await imageService.createDiarImage(req, res)
         return res.status(200).json(response)
     } catch (error) {
         return res.status(500).json({error: error.message})

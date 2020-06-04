@@ -4,8 +4,7 @@ const multipleFileUpload = require('../../middleware/multipleimageuploads')
 const dairDal = require("../../dataaccess/dair/index")
 const fs = require('fs');
 let imageService = {
-    async update(request) {
-    },
+    async update(request) {},
     async findById(imageId) {
         if (parseInt(imageId) > 0) {
             let data = await imageDal.show(imageId)
@@ -14,16 +13,15 @@ let imageService = {
             return []
         }
     },
-    validation(type) {
-    },
+    validation(type) {},
     uploadFileFromStorage(req, res, bodyData) {
         try {
             return new Promise(((resolve, reject) => {
-                multipleFileUpload(req, res, function (error) {
+                multipleFileUpload(req, res, function(error) {
                     if (error) {
                         reject(error)
                     } else {
-                        resolve({file: req.files, body: bodyData ? req.body[bodyData] : null})
+                        resolve({ file: req.files, body: bodyData ? req.body[bodyData] : null })
                     }
                 })
             }))
@@ -42,14 +40,13 @@ let imageService = {
     },
     async delete(request) {
 
-        const {urlparse} = request.body;
+        const { urlparse } = request.body;
         let where = queryParser.parseQuery(urlparse)
         const data = await imageDal.delete(where)
         return data
     },
     async createDiarImage(request, response) {
         try {
-            console.log("2.olarak bende")
             const result = await this.uploadFileFromStorage(request, response, "diarId")
 
             let imgList = []
@@ -63,12 +60,12 @@ let imageService = {
                     })
                 })
                 const data = await imageDal.create(imgList)
-                const dair = await dairDal.show({_id: result.body})
+                const dair = await dairDal.show({ _id: result.body })
                 const dairImages = dair.images
                 data.forEach((imageItem) => {
                     dairImages.push(imageItem._id)
                 })
-                const dairUpdateImages = await dairDal.update({_id:result.body}, {images: dairImages})
+                const dairUpdateImages = await dairDal.update({ _id: result.body }, { images: dairImages })
                 return data
             } else {
                 return []
@@ -80,7 +77,7 @@ let imageService = {
     },
 
     async all(request) {
-        const {urlparse} = request.body;
+        const { urlparse } = request.body;
         let where;
         if (urlparse === undefined || urlparse === null) {
             where = {};

@@ -6,20 +6,18 @@ const DB_OPTIONS = {
     useUnifiedTopology: true
 }
 
-module.exports = async () => {
-    try {
-        const result = await mongoose.connect(process.env.DB_CONNECTION, DB_OPTIONS);
-    } catch (err) {
-        throw new Error(err)
-        console.error(err)
-        console.log("error", err)
+module.exports = async() => {
+        try {
+            const result = await mongoose.connect(process.env.DB_CONNECTION, DB_OPTIONS);
+        } catch (err) {
+            throw new Error(err)
+        }
     }
-}
-/*
-mongoose.connect(DB_URI, DB_OPTIONS).then((res) => {
+    /*
+    mongoose.connect(DB_URI, DB_OPTIONS).then((res) => {
 
 
-}).catch((err) => {
+    }).catch((err) => {
 
-})
-*/
+    })
+    */

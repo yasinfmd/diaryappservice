@@ -9,8 +9,15 @@ let dairService = {
     async show(request) {
         try {
             const {dairId} = request.params
-            const {fields, populate} = request.body
-            const data = await dairDal.show({_id: dairId}, fields ? fields : "", populate)
+            const {fields, populate, userid} = request.body
+            let where;
+            if (userid) {
+                where = {_id: dairId, userId: userid}
+            } else {
+                where = {_id: dairId}
+            }
+            const data = await dairDal.show(where, fields ? fields : "", populate)
+
             return data
         } catch (error) {
             throw new Error(error.message)
@@ -22,6 +29,7 @@ let dairService = {
     },
     async destroy(request) {
         try {
+            console.log("bu fonksiyon")
             const {urlparse} = request.body
             let where = queryParser.parseQuery(urlparse)
             const populate = [{path: 'images'}]
@@ -43,6 +51,7 @@ let dairService = {
                         return {msg: "Success"}
                     }
                 } else {
+                    console.log("burda ve şart", where)
                     const deletedDair = await dairDal.delete(where)
                     return {msg: "Success"}
                 }

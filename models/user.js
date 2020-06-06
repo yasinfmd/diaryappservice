@@ -38,10 +38,6 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectID,
         ref: "Dair"
     }]
-    /* todos: [{
-         type: Schema.Types.ObjectID,
-         ref: "Todo"
-     }]*/
 });
 const User = mongoose.model('User', userSchema, "user");
 module.exports = User

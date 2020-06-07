@@ -14,10 +14,12 @@ app.use(bodyParser.json());
 app.use(cors())
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads/images', express.static(path.join(__dirname, 'uploads/images')));
+app.use('/uploads/videos', express.static(path.join(__dirname, 'uploads/videos')));
 app.use("/api/image", router.imageRouter)
 app.use("/api/auth", router.authRouter)
 app.use("/api/user", router.userRouter)
 app.use("/api/dair", router.dairRouter)
+app.use("/api/video",router.videoRouter)
 const multer = require('multer')
 
 app.use("/test", (req, res, next) => {

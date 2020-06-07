@@ -9,11 +9,6 @@ let UserDataAccess = {
     async update(where, updatedUser) {
         const user = await User.updateMany(where, updatedUser)
         return user
-        /*TODO*/
-        /*      const updated = await Tech.update(techModel, {where: where})
-              /!*return updated*!/
-              const tech = await this.all(where)
-              return tech[0]*/
     },
     async show(where, fields, populate) {
         const user = await User.findOne(where).select(fields).populate(populate ? populate : null)

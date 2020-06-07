@@ -29,7 +29,6 @@ let dairService = {
     },
     async destroy(request) {
         try {
-            console.log("bu fonksiyon")
             const {urlparse} = request.body
             let where = queryParser.parseQuery(urlparse)
             const populate = [{path: 'images'}]

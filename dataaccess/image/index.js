@@ -5,11 +5,6 @@ let ImageDataAccess = {
         return deleted
     },
     async update(techModel, where) {
-        /*TODO*/
-  /*      const updated = await Tech.update(techModel, {where: where})
-        /!*return updated*!/
-        const tech = await this.all(where)
-        return tech[0]*/
     },
     async show(imageId) {
         const image = await Image.findById(imageId)

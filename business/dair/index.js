@@ -4,6 +4,7 @@ const Dair = require('../../models/dair')
 const {check, param, validationResult} = require('express-validator');
 const userDal = require('../../dataaccess/user/index')
 const imageDal = require('../../dataaccess/image/index')
+const videoDal = require('../../dataaccess/video/index')
 const imageService = require('../../business/image/index')
 let dairService = {
     async show(request) {
@@ -31,7 +32,7 @@ let dairService = {
         try {
             const {urlparse} = request.body
             let where = queryParser.parseQuery(urlparse)
-            const populate = [{path: 'images'}]
+            const populate = [{path: 'images videos'}]
             const diary = await dairDal.show(where, "", populate);
             let deletedAllFile = false
             if (diary !== null) {
@@ -46,28 +47,35 @@ let dairService = {
                     }
                     if (deletedAllFile) {
                         const deletedImages = await imageDal.delete({dairId: diary._id})
-                        const deletedDair = await dairDal.delete(where)
-                        return {msg: "Success"}
                     }
-                } else {
-                    console.log("burda ve şart", where)
-                    const deletedDair = await dairDal.delete(where)
-                    return {msg: "Success"}
                 }
+                if (diary.videos.length > 0) {
+                    const deletedVideoFromDisk = await imageService.deleteFromStorage("uploads/videos/" + diary.videos[0].videoUri.split('uploads/videos/')[1])
+                    if (!deletedVideoFromDisk) {
+                        throw new Error("Video Fiziksel Olarak Silinemedi")
+                    } else {
+                        const deletedVideos = await videoDal.delete({dairId: diary._id})
+                    }
+                }
+                const deletedDair = await dairDal.delete(where)
+                return {msg: "Success"}
             } else {
                 throw new Error("Günlük Bulunamadı")
             }
-        } catch (error) {
+        } catch
+            (error) {
             throw new Error(error.message)
         }
-    },
+    }
+    ,
     geterrors(request, response) {
         const errors = validationResult(request);
         if (!errors.isEmpty()) {
             return response.status(400).json({errors: errors.array()});
             /*       return {errors: errors.array()}*/
         }
-    },
+    }
+    ,
     validation(type) {
         switch (type) {
             case "create":
@@ -81,7 +89,8 @@ let dairService = {
                 return [check('urlparse').notEmpty(), check('urlparse').isArray()]
 
         }
-    },
+    }
+    ,
     async create(request) {
         try {
             const {userid, title, content} = request.body
@@ -108,7 +117,8 @@ let dairService = {
             throw new Error(error.message)
         }
 
-    },
+    }
+    ,
     async all(request) {
         try {
             const {urlparse, fields, populate} = request.body

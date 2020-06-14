@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
     }
 })
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype == "video/mp4" || file.mimetype == "application/mp4") {
+    if (file.mimetype == "video/mp4" || file.mimetype == "application/mp4" || file.mimetype=="video/quicktime") {
         cb(null, true)
     } else {
         return cb(new Error('Dosya Türü Desteklenmiyor'), false);

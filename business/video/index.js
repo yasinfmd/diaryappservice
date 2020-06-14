@@ -2,6 +2,7 @@ const videoDal = require("../../dataaccess/video/index")
 const queryParser = require('../../utils/queryparser')
 const dairDal = require("../../dataaccess/dair/index")
 const Video = require('../../models/video')
+const {check, validationResult} = require('express-validator');
 const fs = require('fs');
 let videoService = {
     async update(request) {
@@ -14,7 +15,18 @@ let videoService = {
             return []
         }
     },
+    geterrors(request, response) {
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({errors: errors.array()});
+            /*       return {errors: errors.array()}*/
+        }
+    },
     validation(type) {
+        switch (type) {
+            case "delete":
+                return [check('urlparse').notEmpty(), check('videoid').notEmpty(), check('urlparse').isArray(), check('urlparse').isLength({min: 1}), check('filename').notEmpty(), check('filename').isString(), check('dairid').notEmpty()]
+        }
     },
 
     async deleteFromStorage(path) {
@@ -26,12 +38,41 @@ let videoService = {
         }
         return true
     },
-    async delete(request) {
+    async diarDeleteVideo(dairid, videoid) {
+        try {
+            let dair = await dairDal.show({_id: dairid})
+            if (dair != null) {
+                const dairVideos = dair.videos.filter((video) => {
+                    return video != videoid
+                })
+                const dairUpdateVideos = await dairDal.update({_id: dairid}, {videos: dairVideos})
+                return dair
+            } else {
+                return null
+            }
 
-        const {urlparse} = request.body;
-        let where = queryParser.parseQuery(urlparse)
-        const data = await videoDal.delete(where)
-        return data
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    },
+    async delete(request) {
+        try {
+            const {urlparse, dairid, filename, videoid} = request.body;
+            const diarUpdate = await this.diarDeleteVideo(dairid, videoid)
+            if (diarUpdate != null) {
+                let where = queryParser.parseQuery(urlparse)
+                const deletedVideoDisk = await this.deleteFromStorage("uploads/videos/" + filename)
+                if (deletedVideoDisk) {
+                    const data = await videoDal.delete(where)
+                    return data
+                } else {
+                    throw  new Error("Dosya Fiziksel Olarak Silinemedi")
+                }
+            }
+            return null
+        } catch (error) {
+            throw new Error(error.message)
+        }
     },
     async createDiarVideo(request, response) {
         try {

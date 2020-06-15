@@ -20,7 +20,6 @@ app.use("/api/auth", router.authRouter)
 app.use("/api/user", router.userRouter)
 app.use("/api/dair", router.dairRouter)
 app.use("/api/video",router.videoRouter)
-const multer = require('multer')
 
 app.use("/test", (req, res, next) => {
 

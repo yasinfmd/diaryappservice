@@ -2,11 +2,10 @@ const videoDal = require("../../dataaccess/video/index")
 const queryParser = require('../../utils/queryparser')
 const dairDal = require("../../dataaccess/dair/index")
 const Video = require('../../models/video')
-const {check, validationResult} = require('express-validator');
+const { check, validationResult } = require('express-validator');
 const fs = require('fs');
 let videoService = {
-    async update(request) {
-    },
+    async update(request) {},
     async findById(videoId) {
         if (parseInt(videoId) > 0) {
             let data = await videoDal.show(videoId)
@@ -18,14 +17,14 @@ let videoService = {
     geterrors(request, response) {
         const errors = validationResult(request);
         if (!errors.isEmpty()) {
-            return response.status(400).json({errors: errors.array()});
+            return response.status(400).json({ errors: errors.array() });
             /*       return {errors: errors.array()}*/
         }
     },
     validation(type) {
         switch (type) {
             case "delete":
-                return [check('urlparse').notEmpty(), check('videoid').notEmpty(), check('urlparse').isArray(), check('urlparse').isLength({min: 1}), check('filename').notEmpty(), check('filename').isString(), check('dairid').notEmpty()]
+                return [check('urlparse').notEmpty(), check('videoid').notEmpty(), check('urlparse').isArray(), check('urlparse').isLength({ min: 1 }), check('filename').notEmpty(), check('filename').isString(), check('dairid').notEmpty()]
         }
     },
 
@@ -40,12 +39,12 @@ let videoService = {
     },
     async diarDeleteVideo(dairid, videoid) {
         try {
-            let dair = await dairDal.show({_id: dairid})
+            let dair = await dairDal.show({ _id: dairid })
             if (dair != null) {
                 const dairVideos = dair.videos.filter((video) => {
                     return video != videoid
                 })
-                const dairUpdateVideos = await dairDal.update({_id: dairid}, {videos: dairVideos})
+                const dairUpdateVideos = await dairDal.update({ _id: dairid }, { videos: dairVideos })
                 return dair
             } else {
                 return null
@@ -57,7 +56,7 @@ let videoService = {
     },
     async delete(request) {
         try {
-            const {urlparse, dairid, filename, videoid} = request.body;
+            const { urlparse, dairid, filename, videoid } = request.body;
             const diarUpdate = await this.diarDeleteVideo(dairid, videoid)
             if (diarUpdate != null) {
                 let where = queryParser.parseQuery(urlparse)
@@ -66,7 +65,7 @@ let videoService = {
                     const data = await videoDal.delete(where)
                     return data
                 } else {
-                    throw  new Error("Dosya Fiziksel Olarak Silinemedi")
+                    throw new Error("Dosya Fiziksel Olarak Silinemedi")
                 }
             }
             return null
@@ -76,12 +75,12 @@ let videoService = {
     },
     async createDiarVideo(request, response) {
         try {
-            const {dairid} = request.body
+            const { dairid } = request.body
             const video = request.file;
             if (!video) {
                 throw new Error("Video Yok")
             }
-            const dair = await dairDal.show({_id: dairid})
+            const dair = await dairDal.show({ _id: dairid })
             if (dair === null) {
                 throw new Error("404 Not Found")
                 return
@@ -94,7 +93,7 @@ let videoService = {
             const data = await videoDal.create(newvideo)
             const dairvideos = dair.videos;
             const newdairvideos = [...dairvideos, newvideo._id]
-            const dairUpdateVideos = await dairDal.update({_id: dairid}, {videos: newdairvideos})
+            const dairUpdateVideos = await dairDal.update({ _id: dairid }, { videos: newdairvideos })
             return data;
 
         } catch (error) {
@@ -103,7 +102,7 @@ let videoService = {
     },
 
     async all(request) {
-        const {urlparse} = request.body;
+        const { urlparse } = request.body;
         let where;
         if (urlparse === undefined || urlparse === null) {
             where = {};

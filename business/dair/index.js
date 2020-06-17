@@ -1,21 +1,22 @@
 const dairDal = require("../../dataaccess/dair/index")
 const queryParser = require('../../utils/queryparser')
 const Dair = require('../../models/dair')
-const { check, param, validationResult } = require('express-validator');
+const {check, param, validationResult} = require('express-validator');
 const userDal = require('../../dataaccess/user/index')
 const imageDal = require('../../dataaccess/image/index')
 const videoDal = require('../../dataaccess/video/index')
 const imageService = require('../../business/image/index')
+const io = require('../../socket')
 let dairService = {
     async show(request) {
         try {
-            const { dairId } = request.params
-            const { fields, populate, userid } = request.body
+            const {dairId} = request.params
+            const {fields, populate, userid} = request.body
             let where;
             if (userid) {
-                where = { _id: dairId, userId: userid }
+                where = {_id: dairId, userId: userid}
             } else {
-                where = { _id: dairId }
+                where = {_id: dairId}
             }
             const data = await dairDal.show(where, fields ? fields : "", populate)
 
@@ -24,15 +25,12 @@ let dairService = {
             throw new Error(error.message)
         }
     },
-    async checktoday() {
-        const data = await dairDal.show({ dairdateString: new Date().toLocaleDateString() })
-        return data
-    },
+
     async destroy(request) {
         try {
-            const { urlparse } = request.body
+            const {urlparse} = request.body
             let where = queryParser.parseQuery(urlparse)
-            const populate = [{ path: 'images videos' }]
+            const populate = [{path: 'images videos'}]
             const diary = await dairDal.show(where, "", populate);
             let deletedAllFile = false
             if (diary !== null) {
@@ -46,7 +44,7 @@ let dairService = {
                         }
                     }
                     if (deletedAllFile) {
-                        const deletedImages = await imageDal.delete({ dairId: diary._id })
+                        const deletedImages = await imageDal.delete({dairId: diary._id})
                     }
                 }
                 if (diary.videos.length > 0) {
@@ -54,11 +52,23 @@ let dairService = {
                     if (!deletedVideoFromDisk) {
                         throw new Error("Video Fiziksel Olarak Silinemedi")
                     } else {
-                        const deletedVideos = await videoDal.delete({ dairId: diary._id })
+                        const deletedVideos = await videoDal.delete({dairId: diary._id})
                     }
                 }
-                const deletedDair = await dairDal.delete(where)
-                return { msg: "Success" }
+                const findUserDiar = await userDal.show({diaries: diary._id})
+                console.log("varmı kullanıcı", findUserDiar)
+                if (findUserDiar != null) {
+                    let userDiars = findUserDiar.diaries.filter((diar) => {
+                        console.log("diar", diar)
+                        console.log("id", diary._id)
+                        return diar.toString() !== diary._id.toString()
+                    })
+                    console.log("userdiar", userDiars)
+                    const dairUpdateImages = await userDal.update({_id: findUserDiar._id}, {diaries: userDiars})
+
+                }
+                /*        const deletedDair = await dairDal.delete(where)*/
+                return {msg: "Success"}
             } else {
                 throw new Error("Günlük Bulunamadı")
             }
@@ -69,7 +79,7 @@ let dairService = {
     geterrors(request, response) {
         const errors = validationResult(request);
         if (!errors.isEmpty()) {
-            return response.status(400).json({ errors: errors.array() });
+            return response.status(400).json({errors: errors.array()});
             /*       return {errors: errors.array()}*/
         }
     },
@@ -79,7 +89,7 @@ let dairService = {
                 return [
                     check("userid").isString(), check('title').isString(),
                     check('content').isString(),
-                    check('title').isLength({ min: 3 }), check('content').isLength({ min: 3 })
+                    check('title').isLength({min: 3}), check('content').isLength({min: 3})
                 ]
             case "show":
                 return [param('dairId').isString()]
@@ -87,20 +97,28 @@ let dairService = {
                 return [check('urlparse').notEmpty(), check('urlparse').isArray()]
             case "update":
                 return [check('urlparse').notEmpty(), check('userid').notEmpty(), check('title').notEmpty(), check('title').isString(),
-                    check('title').isLength({ min: 3 }),
+                    check('title').isLength({min: 3}),
                     check('content').isString(),
                     check('content').notEmpty(),
-                    check('content').isLength({ min: 3 }),
-                    check('urlparse').isArray(), check('urlparse').isLength({ min: 1 })
+                    check('content').isLength({min: 3}),
+                    check('urlparse').isArray(), check('urlparse').isLength({min: 1})
                 ]
 
         }
     },
+    async checktoday(userid) {
+        /*{dairdateString: new Date().toLocaleDateString()}*/
+        const data = await userDal.show({_id: userid}, "", {
+            path: 'diaries',
+            match: {dairdateString: new Date().toLocaleDateString()},
+        })
+        return data.diaries
+    },
     async create(request) {
         try {
-            const { userid, title, content } = request.body
-            const todayExist = await this.checktoday()
-            if (todayExist === null) {
+            const {userid, title, content} = request.body
+            const todayExist = await this.checktoday(userid)
+            if (todayExist.length < 1) {
                 const dair = new Dair({
                     userId: userid,
                     dairdate: new Date(),
@@ -110,10 +128,12 @@ let dairService = {
                     images: [],
                     videos: []
                 });
+
                 const data = await dairDal.create(dair)
-                const user = await userDal.show({ _id: userid })
+                const user = await userDal.show({_id: userid})
                 const updateddiar = [...user.diaries, data._id]
-                const userpushdiar = await userDal.update({ _id: user._id }, { diaries: updateddiar })
+                const userpushdiar = await userDal.update({_id: user._id}, {diaries: updateddiar})
+                io.getIO().emit("diars", {action: "CREATE", payload: data})
                 return data
             } else {
                 return []
@@ -125,11 +145,11 @@ let dairService = {
     },
     async update(request) {
         try {
-            const { urlparse, userid, title, content } = request.body
+            const {urlparse, userid, title, content} = request.body
             let where = queryParser.parseQuery(urlparse)
             let dair = await dairDal.show(where, "")
             if (dair != null) {
-                const data = await dairDal.update(where, { title: title, content: content, userId: userid })
+                const data = await dairDal.update(where, {title: title, content: content, userId: userid})
                 return data
             }
             return null
@@ -140,7 +160,7 @@ let dairService = {
     },
     async all(request) {
         try {
-            const { urlparse, fields, populate } = request.body
+            const {urlparse, fields, populate} = request.body
             let where = {}
             if (urlparse != undefined) {
                 where = queryParser.parseQuery(urlparse)

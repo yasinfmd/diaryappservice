@@ -1,12 +1,15 @@
 const kue = require('kue'),
     queue = kue.createQueue();
-
+const sendMail = require("../utils/sendemail")
 queue.process('email', function(job, done) {
     email(job.id, job.data, done);
 });
 const email = async function(id, email, done) {
-    await sendMail(email.to, email.title, email.content)
-    done(null, { result: 'Mail Başarıyla Gönderildi' });
+    setTimeout(async ()=>{
+        await sendMail(email.to, email.title, email.content)
+        done(null, { result: 'Mail Başarıyla Gönderildi' });
+    },10000)
+
 
 
 };

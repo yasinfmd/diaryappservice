@@ -30,6 +30,9 @@ const userSchema = new Schema({
     resetTokenExpiration: {
         type: Date
     },
+    role:{
+      type:Number
+    },
     password: {
         type: String,
         required: true

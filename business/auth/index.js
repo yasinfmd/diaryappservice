@@ -32,6 +32,7 @@ let auhtService = {
         }
     },
     async register(request) {
+        //0 user 1 admin
         const {name, surname, email, password} = request.body
         const user = new User({
             image: process.env.DEFAULT_IMAGE,
@@ -40,16 +41,17 @@ let auhtService = {
             fullname: name + " " + surname,
             email: email,
             password: md5(password),
-            diaries: []
+            diaries: [],
+            role: 0
         });
-        mailJob([{to: email,  text: registerText, title: registerTitle}])
+        mailJob([{to: email, text: registerText, title: registerTitle}])
         const data = await userDal.create(user)
         return data
     },
 
     async login(request, response) {
         const {email, password} = request.body;
-        const user = await userDal.show({email: email, password: md5(password)}, "email fullname image")
+        const user = await userDal.show({email: email, password: md5(password)}, "email fullname role image")
         if (user !== null) {
             const token = jwt.sign({
                     userid: user._id,

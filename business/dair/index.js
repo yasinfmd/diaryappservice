@@ -56,18 +56,14 @@ let dairService = {
                     }
                 }
                 const findUserDiar = await userDal.show({diaries: diary._id})
-                console.log("varmı kullanıcı", findUserDiar)
                 if (findUserDiar != null) {
                     let userDiars = findUserDiar.diaries.filter((diar) => {
-                        console.log("diar", diar)
-                        console.log("id", diary._id)
                         return diar.toString() !== diary._id.toString()
                     })
-                    console.log("userdiar", userDiars)
                     const dairUpdateImages = await userDal.update({_id: findUserDiar._id}, {diaries: userDiars})
 
                 }
-                /*        const deletedDair = await dairDal.delete(where)*/
+                const deletedDair = await dairDal.delete(where)
                 return {msg: "Success"}
             } else {
                 throw new Error("Günlük Bulunamadı")
@@ -130,10 +126,21 @@ let dairService = {
                 });
 
                 const data = await dairDal.create(dair)
-                const user = await userDal.show({_id: userid})
+                const user = await userDal.show({_id: userid}, "email fullname image diaries")
                 const updateddiar = [...user.diaries, data._id]
                 const userpushdiar = await userDal.update({_id: user._id}, {diaries: updateddiar})
-                io.getIO().emit("diars", {action: "CREATE", payload: data})
+                let socketpayload = {
+                    title: data.title,
+                    dairdate: data.dairdate,
+                    diarid: data._id,
+                    userId: {
+                        fullname: user.fullname,
+                        image: user.image,
+                        email: user.email,
+
+                    }
+                }
+                io.getIO().emit("diars", {action: "CREATE", payload: socketpayload})
                 return data
             } else {
                 return []
@@ -165,6 +172,7 @@ let dairService = {
             if (urlparse != undefined) {
                 where = queryParser.parseQuery(urlparse)
             }
+
             const data = await dairDal.all(where, fields ? fields : "", populate)
             return data
         } catch (error) {
